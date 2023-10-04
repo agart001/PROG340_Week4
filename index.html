@@ -6,6 +6,130 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <script type="module" src="/js/main.js"></script>
+    <button id="toggle">Toggle Shape</button>
+    <script type="module">
+        import * as THREE from './js/three.module.js'
+        //Sources: 
+        // -ChatGpt to generate diamond shape points and extrude settings
+
+        const scene = new THREE.Scene();
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        let initIndex = 0;
+
+        function ToggleShape()
+        {
+            initIndex++
+
+            if(initIndex > 3) initIndex = 0;
+
+            scene.remove(scene.children[0]);
+
+            switch (initIndex) 
+            {
+                case 0: CreateCube(); break;
+                case 1: CreateSphere(); break;
+                case 2: CreateCone(); break;
+                case 3: CreateDiamond(); break;
+            }
+
+        }
+        
+        // Create cube
+        function CreateCube()
+        {
+            const c_geo = new THREE.BoxGeometry();
+            const c_mat = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            const cube = new THREE.Mesh(c_geo, c_mat);
+
+            scene.add(cube);
+        }
+        
+        
+        // Create sphere
+        function CreateSphere()
+        {
+            const s_geo = new THREE.SphereGeometry();
+            const s_mat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+            const sphere = new THREE.Mesh(s_geo, s_mat);
+
+            scene.add(sphere);
+        }
+        
+
+        //Create cone
+        function CreateCone()
+        {
+            const cn_geo = new THREE.ConeGeometry();
+            const cn_mat = new THREE.MeshBasicMaterial({ color: 0x800080})
+            const cone = new THREE.Mesh(cn_geo, cn_mat);
+
+            scene.add(cone);
+        }
+        
+        
+
+        // Create diamond shape
+        function CreateDiamond()
+        {
+            const d_shape = new THREE.Shape();
+            d_shape.moveTo(0, 1);
+            d_shape.lineTo(.5, 0);
+            d_shape.lineTo(0, -1);
+            d_shape.lineTo(-.5, 0);
+            d_shape.lineTo(0, 1);
+            // Set up geometry
+            const extrudeSettings = {
+                steps: 2,
+                depth: 0.5,
+                bevelEnabled: false,
+            };
+            const d_geo = new THREE.ExtrudeGeometry(d_shape, extrudeSettings);
+            const d_mat = new THREE.MeshBasicMaterial({ color: 0x00ff00});
+            const diamond = new THREE.Mesh(d_geo, d_mat);
+
+            scene.add(diamond);
+        }
+
+        // Initial Shape
+        CreateCube();
+
+        // Set up animation
+        const animate = function () {
+            requestAnimationFrame(animate);
+
+            scene.children[0].rotation.x += 0.01;
+            scene.children[0].rotation.y += 0.01;
+
+            renderer.render(scene, camera);
+        };
+
+        // Handle window resize
+        window.addEventListener('resize', function () {
+            const newWidth = window.innerWidth;
+            const newHeight = window.innerHeight;
+
+            camera.aspect = newWidth / newHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(newWidth, newHeight);
+        });
+
+        window.addEventListener('click', function (event) {
+            // Check if the click event occurred on the button
+            if (event.target.id == 'toggle') {
+                ToggleShape();
+            }
+        });
+
+        // Start animation
+        animate();
+    </script>
 </body>
 </html>
